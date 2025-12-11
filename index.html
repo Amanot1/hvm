@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Report Analyzer Pro - AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-light: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 100px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        /* ব্যাকগ্রাউন্ড অ্যানিমেশন */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%234361ee" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,133.3C960,128,1056,96,1152,90.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* ডার্ক মোড স্টাইল */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--white);
+        }
+
+        body.dark-mode::before {
+            opacity: 0.3;
+        }
+
+        body.dark-mode .logo h1,
+        body.dark-mode .user-info span,
+        body.dark-mode .sidebar h2,
+        body.dark-mode .report-type span,
+        body.dark-mode .message-text,
+        body.dark-mode .report-preview h4,
+        body.dark-mode .report-preview p,
+        body.dark-mode .report-preview .report-data,
+        body.dark-mode .settings-panel h3,
+        body.dark-mode .settings-panel .setting-label,
+        body.dark-mode .settings-panel .language-option {
+            color: var(--white);
+        }
+
+        body.dark-mode .sidebar,
+        body.dark-mode .chat-wrapper,
+        body.dark-mode .chat-input-container,
+        body.dark-mode .file-input-button,
+        body.dark-mode .chat-input,
+        body.dark-mode .settings-panel {
+            background-color: rgba(45, 45, 68, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .message-content {
+            background-color: rgba(61, 61, 92, 0.8);
+            color: var(--white);
+        }
+
+        body.dark-mode .message.user .message-content {
+            background-color: var(--primary);
+        }
+
+        body.dark-mode .typing-indicator {
+            background-color: rgba(61, 61, 92, 0.8);
+        }
+
+        body.dark-mode .typing-dot {
+            background-color: var(--white);
+        }
+
+        body.dark-mode .report-preview {
+            background-color: rgba(61, 61, 92, 0.7);
+            border-color: var(--primary);
+        }
+
+        body.dark-mode .report-preview .report-data {
+            background-color: rgba(45, 45, 68, 0.8);
+            color: var(--white);
+        }
+
+        body.dark-mode .settings-panel .language-option {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .settings-panel .language-option.active {
+            background-color: rgba(67, 97, 238, 0.2);
+            border-color: var(--primary);
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        body.dark-mode header {
+            background: rgba(26, 26, 46, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .logo h1 {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-button {
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-button:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: rotate(90deg);
+        }
+
+        .theme-toggle {
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: rotate(180deg);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(67, 97, 238, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .user-info span {
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            gap: 1rem;
+            padding: 0 0.5rem;
+            margin-top: 70px;
+            height: calc(100vh - 160px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            transition: var(--transition);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .sidebar h2 {
+            color: var(--dark);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar h2 i {
+            color: var(--primary);
+        }
+
+        .report-types {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .report-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            background: rgba(67, 97, 238, 0.05);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .report-type::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(67, 97, 238, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .report-type:hover::before {
+            left: 100%;
+        }
+
+        .report-type:hover {
+            background: rgba(67, 97, 238, 0.1);
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        .report-type.active {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .report-type.active i,
+        .report-type.active span {
+            color: var(--white);
+        }
+
+        .report-type i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .report-type span {
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .chat-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            height: 100%;
+            transition: var(--transition);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .chat-header {
+            background: var(--gradient);
+            color: var(--white);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .chat-header i {
+            font-size: 1.3rem;
+        }
+
+        .chat-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages-container {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--white);
+        }
+
+        .message.user .message-avatar {
+            background: var(--primary);
+        }
+
+        .message-content {
+            background: rgba(67, 97, 238, 0.05);
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            position: relative;
+            max-width: 100%;
+            word-wrap: break-word;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .message.user .message-content {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+        }
+
+        .message-text {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+            text-align: right;
+        }
+
+        .message.user .message-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .file-upload {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+        }
+
+        .file-upload i {
+            color: var(--primary);
+        }
+
+        .file-upload span {
+            font-size: 0.85rem;
+            color: var(--dark);
+        }
+
+        .chat-input-container {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(67, 97, 238, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            transition: var(--transition);
+        }
+
+        .chat-input-form {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 24px;
+            padding: 0.6rem 1rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .emoji-button {
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            font-size: 1.1rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-button:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 42px;
+            height: 42px;
+        }
+
+        .file-input-button {
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-input-button:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .send-button {
+            background: var(--gradient);
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem 1rem;
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 16px;
+            width: fit-content;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--gray);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .report-preview {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 12px;
+            border: 1px dashed var(--primary);
+        }
+
+        .report-preview h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .report-preview p {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-preview .report-data {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--dark);
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.75rem;
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card h5 {
+            color: var(--gray);
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card .value {
+            color: var(--dark);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .stat-card.normal .value {
+            color: #28a745;
+        }
+
+        .stat-card.warning .value {
+            color: #ffc107;
+        }
+
+        .stat-card.danger .value {
+            color: #dc3545;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            display: none;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.25rem;
+            max-width: 250px;
+            z-index: 1000;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .emoji-picker.show {
+            display: grid;
+        }
+
+        .emoji {
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .emoji:hover {
+            background: rgba(67, 97, 238, 0.1);
+            transform: scale(1.2);
+        }
+
+        .clear-chat {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: 8px;
+            padding: 0.4rem 0.75rem;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clear-chat:hover {
+            background: #dc3545;
+            color: var(--white);
+        }
+
+        /* সেটিং প্যানেল স্টাইল */
+        .settings-panel {
+            position: fixed;
+            top: 70px;
+            right: -320px;
+            width: 300px;
+            height: calc(100vh - 70px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            padding: 1.5rem;
+            z-index: 1001;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .settings-panel.show {
+            right: 0;
+        }
+
+        .settings-panel h3 {
+            color: var(--dark);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-panel h3 i {
+            color: var(--primary);
+        }
+
+        .settings-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-section h4 {
+            color: var(--dark);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .setting-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .language-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .language-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .language-option:hover {
+            background: rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+        }
+
+        .language-option.active {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+        }
+
+        .language-option.active i,
+        .language-option.active span {
+            color: var(--white);
+        }
+
+        .language-option i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .language-option span {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .close-settings {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+            color: #dc3545;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-settings:hover {
+            background: #dc3545;
+            color: var(--white);
+        }
+
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .settings-overlay.show {
+            display: block;
+        }
+
+        /* ফলো-আপ প্রশ্ন স্টাইল */
+        .follow-up-questions {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 12px;
+            border: 1px dashed var(--primary);
+        }
+
+        .follow-up-questions h4 {
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .question-option {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .question-option:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .question-option i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .question-option:hover i {
+            color: var(--white);
+        }
+
+        /* মোবাইল ডিভাইসের জন্য মিডিয়া কোয়েরি */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 160px);
+                gap: 0.75rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                max-height: none;
+                padding: 0.75rem;
+            }
+
+            .report-types {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                gap: 0.5rem;
+            }
+
+            .report-type {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                min-width: 70px;
+                padding: 0.5rem;
+            }
+
+            .report-type i {
+                font-size: 1.2rem;
+            }
+
+            .report-type span {
+                font-size: 0.8rem;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .message-text {
+                font-size: 0.9rem;
+            }
+            
+            .chat-input-form {
+                padding: 0 0.5rem;
+            }
+
+            .emoji-picker {
+                right: 10px;
+                max-width: 200px;
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .chat-header h2 {
+                font-size: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 1rem;
+            }
+
+            .user-info span {
+                display: none;
+            }
+
+            .clear-chat {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .report-stats {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+
+            .stat-card h5 {
+                font-size: 0.7rem;
+            }
+
+            .stat-card .value {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ছোট মোবাইল ডিভাইসের জন্য মিডিয়া কোয়েরি */
+        @media (max-width: 480px) {
+            header {
+                padding: 0.5rem;
+            }
+
+            .logo i {
+                font-size: 1.2rem;
+            }
+
+            .logo h1 {
+                font-size: 0.9rem;
+            }
+
+            .settings-button,
+            .theme-toggle {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+
+            .user-info img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .main-container {
+                margin-top: 60px;
+                height: calc(100vh - 140px);
+                padding: 0 0.25rem;
+            }
+
+            .sidebar {
+                padding: 0.5rem;
+            }
+
+            .sidebar h2 {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .report-type {
+                min-width: 60px;
+                padding: 0.4rem;
+            }
+
+            .report-type i {
+                font-size: 1rem;
+            }
+
+            .report-type span {
+                font-size: 0.75rem;
+            }
+
+            .chat-header {
+                padding: 0.5rem;
+            }
+
+            .chat-header i {
+                font-size: 1.1rem;
+            }
+
+            .chat-header h2 {
+                font-size: 0.9rem;
+            }
+
+            .chat-messages {
+                padding: 0.75rem;
+            }
+
+            .message-avatar {
+                width: 32px;
+                height: 32px;
+            }
+
+            .message-content {
+                padding: 0.6rem 0.8rem;
+            }
+
+            .message-text {
+                font-size: 0.85rem;
+            }
+
+            .message-time {
+                font-size: 0.65rem;
+            }
+
+            .chat-input-container {
+                padding: 0.5rem;
+            }
+
+            .chat-input {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .emoji-button,
+            .file-input-button,
+            .send-button {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+
+            .emoji-picker {
+                bottom: 55px;
+                max-width: 180px;
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .report-preview {
+                padding: 0.5rem;
+            }
+
+            .report-preview h4 {
+                font-size: 0.9rem;
+            }
+
+            .report-preview p {
+                font-size: 0.8rem;
+            }
+
+            .report-preview .report-data {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .follow-up-questions {
+                padding: 0.5rem;
+            }
+
+            .follow-up-questions h4 {
+                font-size: 0.9rem;
+            }
+
+            .question-option {
+                padding: 0.5rem;
+            }
+
+            .clear-chat {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-heartbeat"></i>
+            <h1 data-en="Health Report Analyzer Pro" data-bn="হেলথ রিপোর্ট অ্যানালাইজার প্রো">Health Report Analyzer Pro</h1>
+        </div>
+        <div class="header-controls">
+            <button class="settings-button" id="settingsButton">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-info">
+                <span data-en="Welcome, User" data-bn="স্বাগতম, ব্যবহারকারী">Welcome, User</span>
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <h2><i class="fas fa-file-medical"></i> <span data-en="Report Types" data-bn="রিপোর্টের ধরন">Report Types</span></h2>
+            <div class="report-types">
+                <div class="report-type active" data-type="blood">
+                    <i class="fas fa-tint"></i>
+                    <span data-en="Blood Test" data-bn="রক্ত পরীক্ষা">Blood Test</span>
+                </div>
+                <div class="report-type" data-type="urine">
+                    <i class="fas fa-vial"></i>
+                    <span data-en="Urine Test" data-bn="মূত্র পরীক্ষা">Urine Test</span>
+                </div>
+                <div class="report-type" data-type="xray">
+                    <i class="fas fa-x-ray"></i>
+                    <span data-en="X-Ray" data-bn="এক্স-রে">X-Ray</span>
+                </div>
+                <div class="report-type" data-type="mri">
+                    <i class="fas fa-brain"></i>
+                    <span data-en="MRI Scan" data-bn="এমআরআই স্ক্যান">MRI Scan</span>
+                </div>
+                <div class="report-type" data-type="ecg">
+                    <i class="fas fa-heartbeat"></i>
+                    <span data-en="ECG" data-bn="ইসিজি">ECG</span>
+                </div>
+                <div class="report-type" data-type="ctscan">
+                    <i class="fas fa-microscope"></i>
+                    <span data-en="CT Scan" data-bn="সিটি স্ক্যান">CT Scan</span>
+                </div>
+                <div class="report-type" data-type="ultrasound">
+                    <i class="fas fa-wave-square"></i>
+                    <span data-en="Ultrasound" data-bn="আল্ট্রাসাউন্ড">Ultrasound</span>
+                </div>
+                <div class="report-type" data-type="general">
+                    <i class="fas fa-file-medical-alt"></i>
+                    <span data-en="General Report" data-bn="সাধারণ রিপোর্ট">General Report</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="chat-wrapper">
+            <div class="chat-header">
+                <i class="fas fa-robot"></i>
+                <h2 data-en="Health Assistant AI Pro" data-bn="হেলথ অ্যাসিস্ট্যান্ট এআই প্রো">Health Assistant AI Pro</h2>
+                <div class="chat-status">
+                    <div class="status-dot"></div>
+                    <span data-en="Online" data-bn="অনলাইন">Online</span>
+                </div>
+            </div>
+
+            <div class="chat-messages-container">
+                <button class="clear-chat" id="clearChat">
+                    <i class="fas fa-trash"></i> <span data-en="Clear Chat" data-bn="চ্যাট মুছুন">Clear Chat</span>
+                </button>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text" data-en="👋 Hello! I'm your advanced Health Report Assistant Pro. I can analyze various health reports including blood tests, urine analysis, X-rays, MRI scans, ECGs, CT scans, and ultrasounds. Please upload your report or ask me any health-related questions!" data-bn="👋 হ্যালো! আমি আপনার উন্নত হেলথ রিপোর্ট অ্যাসিস্ট্যান্ট প্রো। আমি রক্ত পরীক্ষা, মূত্র বিশ্লেষণ, এক্স-রে, এমআরআই স্ক্যান, ইসিজি, সিটি স্ক্যান এবং আল্ট্রাসাউন্ড সহ বিভিন্ন স্বাস্থ্য রিপোর্ট বিশ্লেষণ করতে পারি। অনুগ্রহ করে আপনার রিপোর্ট আপলোড করুন বা আমাকে কোনো স্বাস্থ্য-সম্পর্কিত প্রশ্ন জিজ্ঞাসা করুন!">
+                                👋 Hello! I'm your advanced Health Report Assistant Pro. I can analyze various health reports including blood tests, urine analysis, X-rays, MRI scans, ECGs, CT scans, and ultrasounds. Please upload your report or ask me any health-related questions!
+                            </div>
+                            <div class="message-time">10:00 AM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-input-container">
+        <form class="chat-input-form" id="chatForm">
+            <button type="button" class="emoji-button" id="emojiButton">
+                😊
+            </button>
+            <input type="text" class="chat-input" id="chatInput" data-en-placeholder="Type your message here..." data-bn-placeholder="আপনার বার্তা এখানে লিখুন..." placeholder="Type your message here...">
+            <div class="file-input-wrapper">
+                <input type="file" class="file-input" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.txt,.doc,.docx">
+                <div class="file-input-button">
+                    <i class="fas fa-paperclip"></i>
+                </div>
+            </div>
+            <button type="submit" class="send-button">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+        <div class="emoji-picker" id="emojiPicker"></div>
+    </div>
+
+    <!-- সেটিং প্যানেল -->
+    <div class="settings-overlay" id="settingsOverlay"></div>
+    <div class="settings-panel" id="settingsPanel">
+        <button class="close-settings" id="closeSettings">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3><i class="fas fa-cog"></i> <span data-en="Settings" data-bn="সেটিংস">Settings</span></h3>
+        
+        <div class="settings-section">
+            <h4 data-en="Language" data-bn="ভাষা">Language</h4>
+            <div class="language-options">
+                <div class="language-option active" data-lang="en">
+                    <i class="fas fa-flag-usa"></i>
+                    <span data-en="English" data-bn="ইংরেজি">English</span>
+                </div>
+                <div class="language-option" data-lang="bn">
+                    <i class="fas fa-flag"></i>
+                    <span data-en="Bangla" data-bn="বাংলা">Bangla</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const chatForm = document.getElementById('chatForm');
+            const chatInput = document.getElementById('chatInput');
+            const fileInput = document.getElementById('fileInput');
+            const reportTypes = document.querySelectorAll('.report-type');
+            const themeToggle = document.getElementById('themeToggle');
+            const emojiButton = document.getElementById('emojiButton');
+            const emojiPicker = document.getElementById('emojiPicker');
+            const clearChat = document.getElementById('clearChat');
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const settingsOverlay = document.getElementById('settingsOverlay');
+            const closeSettings = document.getElementById('closeSettings');
+            const languageOptions = document.querySelectorAll('.language-option');
+            
+            let currentReportType = 'blood';
+            let currentLanguage = 'en';
+            let awaitingFollowUp = false;
+            
+            // ইমোজি লিস্ট
+            const emojis = ['😊', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺', '🈷️', '✅', '🈯', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿', '🅿️', '🛗', '🈳', '🈂️', '🛂', '🛃', '🛄', '🉐', '🚹', '🚺', '🚼', '⚧️', '⚕️', '⚖️', '🗼', '🏗️', '🧭', '⚓', '⛽', '✈️', '🛫', '🛬', '🛩️', '💺', '🚁', '🚟', '🚀', '🛸', '🚢', '⛵', '🚤', '🛥️', '🛳️', '⛴️', '🚘', '🚍', '🚔', '🚖', '🚝', '🚞', '🚃', '🚋', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🏁', '🚢', '⛵', '🚤', '🛥️', '🛳️', '⛴️', '🚘', '🚍', '🚔', '🚖', '🚝', '🚞', '🚃', '🚋', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🏁'];
+            
+            // ইমোজি পিকার তৈরি করা
+            emojis.forEach(emoji => {
+                const emojiElement = document.createElement('div');
+                emojiElement.className = 'emoji';
+                emojiElement.textContent = emoji;
+                emojiElement.addEventListener('click', () => {
+                    chatInput.value += emoji;
+                    emojiPicker.classList.remove('show');
+                });
+                emojiPicker.appendChild(emojiElement);
+            });
+            
+            // ইমোজি বাটন ক্লিক ইভেন্ট
+            emojiButton.addEventListener('click', () => {
+                emojiPicker.classList.toggle('show');
+            });
+            
+            // ডকুমেন্টের অন্য কোথাও ক্লিক করলে ইমোজি পিকার বন্ধ হবে
+            document.addEventListener('click', (e) => {
+                if (!emojiButton.contains(e.target) && !emojiPicker.contains(e.target)) {
+                    emojiPicker.classList.remove('show');
+                }
+            });
+            
+            // থিম টগল ইভেন্ট
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // সেটিং প্যানেল খোলা/বন্ধ করা
+            settingsButton.addEventListener('click', () => {
+                settingsPanel.classList.add('show');
+                settingsOverlay.classList.add('show');
+            });
+            
+            closeSettings.addEventListener('click', () => {
+                settingsPanel.classList.remove('show');
+                settingsOverlay.classList.remove('show');
+            });
+            
+            settingsOverlay.addEventListener('click', () => {
+                settingsPanel.classList.remove('show');
+                settingsOverlay.classList.remove('show');
+            });
+            
+            // ভাষা পরিবর্তন ইভেন্ট
+            languageOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    languageOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    currentLanguage = this.dataset.lang;
+                    changeLanguage(currentLanguage);
+                    localStorage.setItem('language', currentLanguage);
+                });
+            });
+            
+            // ভাষা পরিবর্তন ফাংশন
+            function changeLanguage(lang) {
+                // সমস্ত ডাটা-এব এবং ডাটা-বিএন অ্যাট্রিবিউট যুক্ত এলিমেন্ট আপডেট করা
+                document.querySelectorAll('[data-en]').forEach(element => {
+                    if (lang === 'bn' && element.dataset.bn) {
+                        if (element.tagName === 'INPUT') {
+                            element.placeholder = element.dataset.bnPlaceholder;
+                        } else {
+                            element.textContent = element.dataset.bn;
+                        }
+                    } else {
+                        if (element.tagName === 'INPUT') {
+                            element.placeholder = element.dataset.enPlaceholder;
+                        } else {
+                            element.textContent = element.dataset.en;
+                        }
+                    }
+                });
+            }
+            
+            // সংরক্ষিত থিম লোড করা
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.querySelector('i').classList.remove('fa-moon');
+                themeToggle.querySelector('i').classList.add('fa-sun');
+            }
+            
+            // সংরক্ষিত ভাষা লোড করা
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+                languageOptions.forEach(option => {
+                    option.classList.remove('active');
+                    if (option.dataset.lang === currentLanguage) {
+                        option.classList.add('active');
+                    }
+                });
+                changeLanguage(currentLanguage);
+            }
+            
+            // সংরক্ষিত চ্যাট লোড করা
+            const savedChat = localStorage.getItem('chatHistory');
+            if (savedChat) {
+                chatMessages.innerHTML = savedChat;
+            }
+            
+            // ক্লিয়ার চ্যাট বাটন
+            clearChat.addEventListener('click', () => {
+                const confirmMessage = currentLanguage === 'bn' ? 
+                    'আপনি কি নিশ্চিত যে আপনি চ্যাট ইতিহাস মুছে ফেলতে চান?' : 
+                    'Are you sure you want to clear the chat history?';
+                
+                if (confirm(confirmMessage)) {
+                    const welcomeMessage = currentLanguage === 'bn' ? 
+                        '👋 হ্যালো! আমি আপনার উন্নত হেলথ রিপোর্ট অ্যাসিস্ট্যান্ট প্রো। আমি রক্ত পরীক্ষা, মূত্র বিশ্লেষণ, এক্স-রে, এমআরআই স্ক্যান, ইসিজি, সিটি স্ক্যান এবং আল্ট্রাসাউন্ড সহ বিভিন্ন স্বাস্থ্য রিপোর্ট বিশ্লেষণ করতে পারি। অনুগ্রহ করে আপনার রিপোর্ট আপলোড করুন বা আমাকে কোনো স্বাস্থ্য-সম্পর্কিত প্রশ্ন জিজ্ঞাসা করুন!' : 
+                        '👋 Hello! I\'m your advanced Health Report Assistant Pro. I can analyze various health reports including blood tests, urine analysis, X-rays, MRI scans, ECGs, CT scans, and ultrasounds. Please upload your report or ask me any health-related questions!';
+                    
+                    chatMessages.innerHTML = `
+                        <div class="message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-text">${welcomeMessage}</div>
+                                <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                        </div>
+                    `;
+                    localStorage.removeItem('chatHistory');
+                }
+            });
+            
+            // Report type selection
+            reportTypes.forEach(type => {
+                type.addEventListener('click', function() {
+                    reportTypes.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentReportType = this.dataset.type;
+                    
+                    // Add a message about the selected report type
+                    const reportTypeName = this.querySelector('span').textContent;
+                    const message = currentLanguage === 'bn' ? 
+                        `আপনি ${reportTypeName} নির্বাচন করেছেন। অনুগ্রহ করে আপনার রিপোর্ট আপলোড করুন বা এটি সম্পর্কে আমাকে প্রশ্ন জিজ্ঞাসা করুন।` : 
+                        `You've selected ${reportTypeName}. Please upload your report or ask me questions about it.`;
+                    
+                    addBotMessage(message);
+                });
+            });
+            
+            // Form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                
+                if (message) {
+                    addUserMessage(message);
+                    chatInput.value = '';
+                    
+                    // যদি ফলো-আপ প্রশ্নের জন্য অপেক্ষা করা হয়, তাহলে সেটি প্রসেস করুন
+                    if (awaitingFollowUp) {
+                        processFollowUpResponse(message);
+                        return;
+                    }
+                    
+                    // Simulate bot response
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        generateBotResponse(message);
+                    }, 1500);
+                }
+            });
+            
+            // File upload
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    const fileName = file.name;
+                    
+                    const uploadMessage = currentLanguage === 'bn' ? 
+                        `আমি একটি ফাইল আপলোড করেছি: ${fileName}` : 
+                        `I've uploaded a file: ${fileName}`;
+                    
+                    addUserMessage(uploadMessage);
+                    
+                    // Simulate file processing
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        processFile(file, fileName);
+                    }, 2000);
+                }
+            });
+            
+            function addUserMessage(message) {
+                const messageEl = document.createElement('div');
+                messageEl.className = 'message user';
+                
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                messageEl.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${message}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageEl);
+                // নতুন মেসেজ যোগ হওয়ার পরে স্বয়ংক্রিয়ভাবে নীচে স্ক্রল করুন
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+                
+                // চ্যাট ইতিহাস সংরক্ষণ করুন
+                saveChatHistory();
+            }
+            
+            function addBotMessage(message, isReportPreview = false, isFollowUp = false) {
+                const messageEl = document.createElement('div');
+                messageEl.className = 'message';
+                
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let content = `
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${message}</div>
+                        <div class="message-time">${time}</div>
+                `;
+                
+                if (isReportPreview) {
+                    const reportTitle = currentLanguage === 'bn' ? 'রিপোর্ট বিশ্লেষণ' : 'Report Analysis';
+                    const reportText = currentLanguage === 'bn' ? 'আপনার রিপোর্টে আমি যা পেয়েছি:' : 'Here\'s what I found in your report:';
+                    const normalRanges = currentLanguage === 'bn' ? 'স্বাভাবিক পরিসর:' : 'Normal Ranges:';
+                    
+                    content += `
+                        <div class="report-preview">
+                            <h4><i class="fas fa-chart-line"></i> ${reportTitle}</h4>
+                            <p>${reportText}</p>
+                            <div class="report-stats">
+                                <div class="stat-card normal">
+                                    <h5>Hemoglobin</h5>
+                                    <div class="value">14.5 g/dL</div>
+                                </div>
+                                <div class="stat-card normal">
+                                    <h5>WBC Count</h5>
+                                    <div class="value">7,200/µL</div>
+                                </div>
+                                <div class="stat-card normal">
+                                    <h5>RBC Count</h5>
+                                    <div class="value">5.1 million/µL</div>
+                                </div>
+                                <div class="stat-card danger">
+                                    <h5>Platelets</h5>
+                                    <div class="value">15,000/µL</div>
+                                </div>
+                                <div class="stat-card normal">
+                                    <h5>Glucose</h5>
+                                    <div class="value">92 mg/dL</div>
+                                </div>
+                                <div class="stat-card warning">
+                                    <h5>Cholesterol</h5>
+                                    <div class="value">195 mg/dL</div>
+                                </div>
+                            </div>
+                            <div class="report-data">
+                                <strong>${normalRanges}</strong><br>
+                                Hemoglobin: 13.5-17.5 g/dL<br>
+                                White Blood Cells: 4,500-11,000/µL<br>
+                                Red Blood Cells: 4.5-6.0 million/µL<br>
+                                Platelets: 150,000-450,000/µL<br>
+                                Glucose: 70-100 mg/dL<br>
+                                Cholesterol: <200 mg/dL
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (isFollowUp) {
+                    const followUpTitle = currentLanguage === 'bn' ? 'কিছু প্রশ্ন' : 'Some Questions';
+                    content += `
+                        <div class="follow-up-questions">
+                            <h4><i class="fas fa-question-circle"></i> ${followUpTitle}</h4>
+                            <div class="question-options">
+                                <div class="question-option" data-response="less-than-week">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span data-en="Less than a week" data-bn="এক সপ্তাহের কম">Less than a week</span>
+                                </div>
+                                <div class="question-option" data-response="one-to-two-weeks">
+                                    <i class="fas fa-calendar-week"></i>
+                                    <span data-en="1-2 weeks" data-bn="১-২ সপ্তাহ">1-2 weeks</span>
+                                </div>
+                                <div class="question-option" data-response="more-than-month">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span data-en="More than a month" data-bn="এক মাসের বেশি">More than a month</span>
+                                </div>
+                                <div class="question-option" data-response="not-sure">
+                                    <i class="fas fa-question"></i>
+                                    <span data-en="Not sure" data-bn="নিশ্চিত নই">Not sure</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // প্রশ্ন অপশনে ক্লিক ইভেন্ট যোগ করা
+                    setTimeout(() => {
+                        const questionOptions = messageEl.querySelectorAll('.question-option');
+                        questionOptions.forEach(option => {
+                            option.addEventListener('click', function() {
+                                const response = this.dataset.response;
+                                const responseText = this.querySelector('span').textContent;
+                                addUserMessage(responseText);
+                                processFollowUpResponse(response);
+                            });
+                        });
+                    }, 100);
+                }
+                
+                content += `</div>`;
+                messageEl.innerHTML = content;
+                
+                chatMessages.appendChild(messageEl);
+                // নতুন মেসেজ যোগ হওয়ার পরে স্বয়ংক্রিয়ভাবে নীচে স্ক্রল করুন
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+                
+                // চ্যাট ইতিহাস সংরক্ষণ করুন
+                saveChatHistory();
+            }
+            
+            function showTypingIndicator() {
+                const typingEl = document.createElement('div');
+                typingEl.className = 'message';
+                typingEl.id = 'typingIndicator';
+                
+                typingEl.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(typingEl);
+                // টাইপিং ইন্ডিকেটর যোগ হওয়ার পরে স্বয়ংক্রিয়ভাবে নীচে স্ক্রল করুন
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+            }
+            
+            function removeTypingIndicator() {
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) {
+                    typingEl.remove();
+                }
+            }
+            
+            function generateBotResponse(userMessage) {
+                const lowerMessage = userMessage.toLowerCase();
+                
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "👋 হ্যালো! আজ আপনার স্বাস্থ্য রিপোর্ট নিয়ে আমি কিভাবে সাহায্য করতে পারি? আমি রক্ত পরীক্ষা, মূত্র বিশ্লেষণ, এক্স-রে, এমআরআই স্ক্যান, ইসিজি, সিটি স্ক্যান এবং আল্ট্রাসাউন্ড বিশ্লেষণ করতে পারি।" : 
+                        "👋 Hello! How can I help you with your health reports today? I can analyze blood tests, urine analysis, X-rays, MRI scans, ECGs, CT scans, and ultrasounds.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('help')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "🤖 আমি আপনার স্বাস্থ্য রিপোর্ট বিশ্লেষণে সাহায্য করতে পারি। শুধু একটি ফাইল আপলোড করুন বা আপনার পরীক্ষার ফলাফল সম্পর্কে আমাকে প্রশ্ন জিজ্ঞাসা করুন। আমি বিভিন্ন মেডিকেল রিপোর্ট সমর্থন করি এবং বিস্তারিত বিশ্লেষণ সহ স্বাভাবিক পরিসর প্রদান করি।" : 
+                        "🤖 I can help you analyze your health reports. Simply upload a file or ask me questions about your test results. I support various medical reports and provide detailed analysis with normal ranges.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('normal') || lowerMessage.includes('range')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "📊 স্বাভাবিক পরিসর নির্দিষ্ট পরীক্ষা, আপনার বয়স, লিঙ্গ এবং অন্যান্য কারণের উপর নির্ভর করে পরিবর্তিত হয়। যখন আপনি আপনার রিপোর্ট আপলোড করবেন, আমি আপনার ফলাফলের জন্য প্রসঙ্গ-নির্দিষ্ট স্বাভাবিক পরিসর প্রদান করব।" : 
+                        "📊 Normal ranges vary depending on the specific test, your age, sex, and other factors. When you upload your report, I'll provide context-specific normal ranges for your results.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('cholesterol')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "💉 কোলেস্টেরল আপনার রক্তে পাওয়া একটি মোম জাতীয় পদার্থ। উচ্চ মাত্রা হৃদরোগের ঝুঁকি বাড়িয়ে দিতে পারে। স্বাভাবিক মাত্রা সাধারণত 200 mg/dL এর নিচে। বিস্তারিত বিশ্লেষণের জন্য আপনার রক্ত পরীক্ষার রিপোর্ট আপলোড করুন।" : 
+                        "💉 Cholesterol is a waxy substance found in your blood. High levels can increase your risk of heart disease. Normal levels are typically below 200 mg/dL. Upload your blood test report for a detailed analysis.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('glucose')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "🩸 রক্ত গ্লুকোজের মাত্রা নির্দেশ করে যে আপনার শরীর চিনি কতটা ভালোভাবে পরিচালনা করে। স্বাভাবিক উপবাস গ্লুকোজ 70-100 mg/dL। 126 mg/dL এর উপরের মাত্রা ডায়াবেটিস নির্দেশ করতে পারে। ব্যক্তিগত বিশ্লেষণের জন্য আপনার রিপোর্ট আপলোড করুন।" : 
+                        "🩸 Blood glucose levels indicate how well your body manages sugar. Normal fasting glucose is 70-100 mg/dL. Levels above 126 mg/dL may indicate diabetes. Upload your report for personalized analysis.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('hemoglobin')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "🔴 হিমোগ্লোবিন আপনার রক্তে অক্সিজেন বহন করে। পুরুষদের জন্য স্বাভাবিক পরিসর 13.5-17.5 g/dL এবং মহিলাদের জন্য 12.0-15.5 g/dL। কম মাত্রা রক্তস্বল্পতা নির্দেশ করতে পারে। বিস্তারিত বিশ্লেষণের জন্য আপনার রিপোর্ট আপলোড করুন।" : 
+                        "🔴 Hemoglobin carries oxygen in your blood. Normal ranges are 13.5-17.5 g/dL for men and 12.0-15.5 g/dL for women. Low levels may indicate anemia. Upload your report for detailed analysis.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('blood pressure')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "📈 রক্তচাপ পরিমাপ করা হয় সিস্টোলিক/ডায়াস্টোলিক হিসাবে। স্বাভাবিক সাধারণত 120/80 mmHg। উচ্চ রক্তচাপ (হাইপারটেনশন) 140/90 বা তার বেশি। ব্যক্তিগত বিশ্লেষণের জন্য আপনার রিপোর্ট আপলোড করুন।" : 
+                        "📈 Blood pressure is measured as systolic/diastolic. Normal is typically 120/80 mmHg. High blood pressure (hypertension) is 140/90 or higher. Upload your report for personalized analysis.";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('thank')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "😊 ধন্যবাদ! আমি আপনার স্বাস্থ্য রিপোর্ট বুঝতে সাহায্য করতে এখানে আছি। আপনার পরীক্ষার ফলাফল বা স্বাস্থ্য সম্পর্কে আরও কিছু জানতে চান?" : 
+                        "😊 You're welcome! I'm here to help you understand your health reports. Is there anything else you'd like to know about your test results or health in general?";
+                    addBotMessage(response);
+                } else if (lowerMessage.includes('symptom')) {
+                    const response = currentLanguage === 'bn' ? 
+                        "⚠️ আমি আপনার পরীক্ষার ফলাফল ব্যাখ্যা করতে সাহায্য করতে পারি, কিন্তু আমি মেডিকেল পরামর্শের বিকল্প নই। আপনি যদি উপসর্গ অনুভব করেন, অনুগ্রহ করে একজন স্বাস্থ্যসেবা পেশাদারের সাথে পরামর্শ করুন। যাইহোক, আমি আপনাকে বুঝতে সাহায্য করতে পারি যে আপনার পরীক্ষার ফলাফল কি বোঝাতে পারে।" : 
+                        "⚠️ I can help interpret your test results, but I'm not a substitute for medical advice. If you're experiencing symptoms, please consult with a healthcare professional. However, I can help you understand what your test results might mean.";
+                    addBotMessage(response);
+                } else {
+                    const response = currentLanguage === 'bn' ? 
+                        "🤔 আমি বুঝতে পারছি না। অনুগ্রহ করে আপনার স্বাস্থ্য রিপোর্ট আপলোড করুন বা আপনার পরীক্ষার ফলাফল সম্পর্কে একটি নির্দিষ্ট প্রশ্ন জিজ্ঞাসা করুন? আমি আপনার মেডিকেল রিপোর্ট আরও ভালোভাবে বুঝতে সাহায্য করতে এখানে আছি।" : 
+                        "🤔 I'm not sure I understand. Could you please upload your health report or ask a specific question about your test results? I'm here to help you understand your medical reports better.";
+                    addBotMessage(response);
+                }
+            }
+            
+            function processFile(file, fileName) {
+                // Simulate file processing based on file type
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                let processingMessage = '';
+                
+                if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
+                    processingMessage = currentLanguage === 'bn' ? 
+                        `📷 আমি আপনার ইমেজ ফাইল পেয়েছি: ${fileName}। আমি স্বাস্থ্য রিপোর্ট ডেটা বিশ্লেষণ করছি...` : 
+                        `📷 I've received your image file: ${fileName}. I'm analyzing the health report data...`;
+                } else if (fileExtension === 'pdf') {
+                    processingMessage = currentLanguage === 'bn' ? 
+                        `📄 আমি আপনার PDF রিপোর্ট পেয়েছি: ${fileName}। আমি স্বাস্থ্য ডেটা বের করে বিশ্লেষণ করছি...` : 
+                        `📄 I've received your PDF report: ${fileName}. I'm extracting and analyzing the health data...`;
+                } else if (['txt', 'doc', 'docx'].includes(fileExtension)) {
+                    processingMessage = currentLanguage === 'bn' ? 
+                        `📝 আমি আপনার ডকুমেন্ট পেয়েছি: ${fileName}। আমি স্বাস্থ্য ডেটা বিশ্লেষণ করছি...` : 
+                        `📝 I've received your document: ${fileName}. I'm analyzing the health data...`;
+                } else {
+                    processingMessage = currentLanguage === 'bn' ? 
+                        `📁 আমি আপনার ফাইল পেয়েছি: ${fileName}। আমি স্বাস্থ্য রিপোর্ট ডেটা প্রক্রিয়া করছি...` : 
+                        `📁 I've received your file: ${fileName}. I'm processing the health report data...`;
+                }
+                
+                addBotMessage(processingMessage, true);
+                
+                // Add follow-up message with abnormal platelet count
+                setTimeout(() => {
+                    const followUpMessage = currentLanguage === 'bn' ? 
+                        "📊 রিপোর্ট বিশ্লেষণের উপর ভিত্তি করে, আপনার বেশিরভাগ মান স্বাভাবিক পরিসরের মধ্যে। যাইহোক, আমি লক্ষ্য করেছি যে আপনার প্লেটলেট কাউন্ট খুবই কম (15,000/µL), যা স্বাভাবিক পরিসর (150,000-450,000/µL) থেকে অনেক কম। এটি একটি গুরুতর অবস্থা যা চিকিৎসার প্রয়োজন। আমি আপনাকে কিছু প্রশ্ন জিজ্ঞাসা করতে চাই যাতে আমি আরও ভালোভাবে সাহায্য করতে পারি।" : 
+                        "📊 Based on the report analysis, most of your values are within normal ranges. However, I noticed that your platelet count is very low (15,000/µL), which is significantly below the normal range (150,000-450,000/µL). This is a serious condition that requires medical attention. I'd like to ask you some questions to better assist you.";
+                    
+                    addBotMessage(followUpMessage, false, true);
+                    awaitingFollowUp = true;
+                }, 2000);
+            }
+            
+            function processFollowUpResponse(response) {
+                awaitingFollowUp = false;
+                
+                let followUpResponse = '';
+                
+                if (response === 'less-than-week') {
+                    followUpResponse = currentLanguage === 'bn' ? 
+                        "⚠️ আপনার প্লেটলেট কাউন্ট এক সপ্তাহের কম সময়ের মধ্যে এত কম হওয়া খুবই উদ্বেগজনক। এটি তীব্র অবস্থা নির্দেশ করতে পারে যা তাত্ক্ষণিক চিকিৎসা প্রয়োজন। অনুগ্রহ করে আজই একজন হেমাটোলজিস্টের সাথে পরামর্শ করুন। এই অবস্থায় আপনার ডাক্তার সম্ভবত আরও পরীক্ষা সুপারিশ করবেন, যেমন পেরিফেরাল ব্লাড স্মিয়ার, বোন ম্যারো বায়োপসি, বা আইটিপি (ইমিউন থ্রম্বোসাইটোপেনিক পারপুরা) এর জন্য অ্যান্টিবডি পরীক্ষা।" : 
+                        "⚠️ Your platelet count dropping this low in less than a week is very concerning. This could indicate an acute condition that requires immediate medical attention. Please consult with a hematologist today. Your doctor will likely recommend additional tests, such as a peripheral blood smear, bone marrow biopsy, or antibody tests for ITP (Immune Thrombocytopenic Purpura).";
+                } else if (response === 'one-to-two-weeks') {
+                    followUpResponse = currentLanguage === 'bn' ? 
+                        "⚠️ আপনার প্লেটলেট কাউন্ট ১-২ সপ্তাহের মধ্যে কম হওয়া একটি গুরুতর অবস্থা নির্দেশ করতে পারে। এটি ওষুধের পার্শ্বপ্রতিক্রিয়া, ভাইরাল সংক্রমণ, বা অটোইমিউন অবস্থার কারণে হতে পারে। আপনার ডাক্তারের সাথে দ্রুত অ্যাপয়েন্টমেন্ট নির্ধারণ করুন। তারা সম্ভবত আপনার ওষুধের ইতিহাস পর্যালোচনা করবেন, সাম্প্রতিক সংক্রমণের জন্য পরীক্ষা করবেন, এবং সম্ভবত আরও রক্ত পরীক্ষা সুপারিশ করবেন।" : 
+                        "⚠️ Your platelet count dropping within 1-2 weeks could indicate a serious condition. This might be caused by medication side effects, viral infections, or autoimmune conditions. Schedule an appointment with your doctor promptly. They will likely review your medication history, test for recent infections, and probably recommend additional blood tests.";
+                } else if (response === 'more-than-month') {
+                    followUpResponse = currentLanguage === 'bn' ? 
+                        "⚠️ আপনার প্লেটলেট কাউন্ট এক মাসেরও বেশি সময় ধরে কম থাকা একটি দীর্ঘস্থায়ী অবস্থা নির্দেশ করতে পারে। এটি ক্রনিক আইটিপি, লিভার রোগ, বা বোন ম্যারো সমস্যার কারণে হতে পারে। আপনার ডাক্তারের সাথে পরামর্শ করা গুরুত্বপূর্ণ। তারা সম্ভবত আরও বিস্তারিত পরীক্ষা সুপারিশ করবেন, যেমন লিভার ফাংশন পরীক্ষা, বোন ম্যারো বায়োপসি, বা বিভিন্ন অটোঅ্যান্টিবডির জন্য পরীক্ষা।" : 
+                        "⚠️ Your platelet count being low for more than a month could indicate a chronic condition. This might be caused by chronic ITP, liver disease, or bone marrow problems. It's important to consult with your doctor. They will likely recommend more detailed tests, such as liver function tests, bone marrow biopsy, or tests for various autoantibodies.";
+                } else if (response === 'not-sure') {
+                    followUpResponse = currentLanguage === 'bn' ? 
+                        "⚠️ যেহেতু আপনি নিশ্চিত নন কখন আপনার প্লেটলেট কাউন্ট কম হতে শুরু করেছে, তবে এটি সম্পর্কে আরও জানা গুরুত্বপূর্ণ। আপনার ডাক্তারের সাথে দ্রুত অ্যাপয়েন্টমেন্ট নির্ধারণ করুন। তারা সম্ভবত আপনার পূর্ববর্তী রিপোর্টগুলি পর্যালোচনা করবেন এবং একটি সময়রেখা তৈরি করবেন। তারা সম্ভবত আরও রক্ত পরীক্ষা সুপারিশ করবেন এবং আপনার লক্ষণগুলি সম্পর্কে জিজ্ঞাসা করবেন, যেমন সহজে ক্ষত, রক্তপাত, বা পেটে ব্যথা।" : 
+                        "⚠️ Since you're not sure when your platelet count started to drop, it's important to find out more. Schedule an appointment with your doctor promptly. They will likely review your previous reports and establish a timeline. They will probably recommend additional blood tests and ask about symptoms you might be experiencing, such as easy bruising, bleeding, or abdominal pain.";
+                }
+                
+                addBotMessage(followUpResponse);
+            }
+            
+            function saveChatHistory() {
+                localStorage.setItem('chatHistory', chatMessages.innerHTML);
+            }
+            
+            // প্রতিটি পেজ লোডের সময় চ্যাট ইতিহাস সংরক্ষণ করুন
+            window.addEventListener('beforeunload', saveChatHistory);
+        });
+    </script>
+</body>
+</html>
